@@ -7,7 +7,7 @@ Navigate an NxN grid as character m in order to get to character b first to
 The input will come from STDIN and read N+1 lines and the output should be 
 printed to STDOUT.
 
-##Sample Input:
+## Sample Input:
 7
 -----p-
 -*****-
@@ -17,6 +17,6 @@ printed to STDOUT.
 -******
 --m----
 
-##Sample Output:
+## Sample Output:
 LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, RIGHT, RIGHT, RIGHT,
 RIGHT, UP, UP, LEFT
