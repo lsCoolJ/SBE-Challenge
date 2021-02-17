@@ -9,6 +9,13 @@ printed to STDOUT.
 
 ## Sample Input:
 7
+-----p-
+-*****-
+--b----
+**-----
+-------
+-******
+--m----
 
 ## Sample Output:
 LEFT, LEFT, UP, UP, RIGHT, RIGHT, UP, UP, RIGHT, RIGHT, RIGHT,
