@@ -1,5 +1,6 @@
 package com.assessment.nav;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Grid {
@@ -40,13 +41,16 @@ public class Grid {
 			
 			//Go through each char to build the level's grid.
 			for(int colCount = 0; colCount < gridSize; colCount++) {
-				if(rows[rowCount].charAt(colCount) == 'm') 
+				if(rows[rowCount].charAt(colCount) == 'm') {
+					setMario(rowCount, colCount);
 					grid[rowCount][colCount] = RED_LUIGI;
-				else if(rows[rowCount].charAt(colCount) == 'b') 
+				} else if(rows[rowCount].charAt(colCount) == 'b') {
+					setBowser(rowCount,colCount);
 					grid[rowCount][colCount] = SPIKY_TURTLE;
-				else if(rows[rowCount].charAt(colCount) == 'p') 
+				} else if(rows[rowCount].charAt(colCount) == 'p') {
+					setPeach(rowCount,colCount);
 					grid[rowCount][colCount] = GENERIC_PRINCESS;
-				else if(rows[rowCount].charAt(colCount) == '*') 
+				} else if(rows[rowCount].charAt(colCount) == '*') 
 					grid[rowCount][colCount] = HAZARD;
 				else grid[rowCount][colCount] = CLEAR_PATH;
 			}
@@ -57,18 +61,52 @@ public class Grid {
 		return gridSize;
 	}
 	
-	public void setVisited(int row, int col, boolean value) {
-		this.visited[row][col] = value;
+	public void setMario(int x, int y) {
+		this.m = new Location(x,y);
+	}
+	public Location getM() {
+		return m;
+	}
+	public boolean isMario(Location l) {
+		return l.getX() == m.getX() && l.getY() == m.getY();
 	}
 	
-	public boolean isValidLocation(int row, int col) {
-		if(row < 0 || row >= this.gridSize || col < 0 || col >= this.gridSize)
+	public void setBowser(int x, int y) {
+		this.b = new Location(x,y);
+	}
+	public boolean isBowser(Location l) {
+		return l.getX() == b.getX() && l.getY() == b.getY();
+	}
+	public Location getB() {
+		return b;
+	}
+	
+	public void setPeach(int x, int y) {
+		this.p = new Location(x,y);
+	}
+	public boolean isPeach(Location l) {
+		return l.getX() == p.getX() && l.getY() == p.getY();
+	}
+	
+	public boolean isHazard(Location l) {
+		return grid[l.getX()][l.getY()] == HAZARD;
+	}
+	
+	public boolean wasVisited(Location l) {
+		return visited[l.getX()][l.getY()];
+	}
+	public void setVisited(Location l, boolean value) {
+		this.visited[l.getX()][l.getY()] = value;
+	}
+	public void clearVisited() {
+		for(int i = 0; i < visited.length; i++)
+			Arrays.fill(visited[i], false);
+	}
+	
+	public boolean isValidLocation(Location l) {
+		if(l.getX() < 0 || l.getX() >= this.gridSize || l.getY() < 0 || l.getY() >= this.gridSize)
 			return false;
 		return true;
-	}
-	
-	public void printSolution(List<Location> path) {
-		
 	}
 	
 	public String toString() {

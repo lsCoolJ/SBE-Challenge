@@ -3,8 +3,12 @@ package com.assessment.nav;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+
+import javax.management.openmbean.CompositeType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,5 +51,44 @@ public class NavController implements CommandLineRunner {
 		
 		
 		Grid grid = new Grid(fileText);
+		
+		LinkedList<Location> next = new LinkedList<Location>();
+		Location origin = grid.getM();
+		next.add(origin);
+		
+		while(!next.isEmpty()) {
+			Location current = next.remove();
+			
+			if(!grid.isValidLocation(current) || grid.wasVisited(current)) 
+				continue;
+			if(grid.isHazard(current)) {
+				grid.setVisited(current, true);
+				continue;
+			}
+			
+			if(grid.isMario(current)) continue;
+			else if(grid.isBowser(current)) grid.clearVisited();
+			else if(grid.isPeach(current)) {
+				if(grid.wasVisited(grid.getB())) {
+					printSolution(current);
+					break;
+				}
+			}
+			
+			for(int[] move : MOVES) {
+				Location l = new Location(current.getX() + move[0], current.getY() + move[1], current);
+				next.add(l);
+				grid.setVisited(current, true);
+			}
+		}
+	}
+	
+	public void printSolution(Location current) {
+		Location iter = current;
+		
+		while(iter != null) {
+			
+			iter = iter.prev;
+		}
 	}
 }
