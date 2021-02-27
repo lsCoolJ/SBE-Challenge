@@ -1,7 +1,6 @@
 package com.assessment.nav;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class Grid {
 	private static final char RED_LUIGI = 'm';
@@ -42,17 +41,17 @@ public class Grid {
 			//Go through each char to build the level's grid.
 			for(int colCount = 0; colCount < gridSize; colCount++) {
 				if(rows[rowCount].charAt(colCount) == 'm') {
-					setMario(rowCount, colCount);
-					grid[rowCount][colCount] = RED_LUIGI;
+					setMario(rowCount-1, colCount);
+					grid[rowCount-1][colCount] = RED_LUIGI;
 				} else if(rows[rowCount].charAt(colCount) == 'b') {
-					setBowser(rowCount,colCount);
-					grid[rowCount][colCount] = SPIKY_TURTLE;
+					setBowser(rowCount-1,colCount);
+					grid[rowCount-1][colCount] = SPIKY_TURTLE;
 				} else if(rows[rowCount].charAt(colCount) == 'p') {
-					setPeach(rowCount,colCount);
-					grid[rowCount][colCount] = GENERIC_PRINCESS;
+					setPeach(rowCount-1,colCount);
+					grid[rowCount-1][colCount] = GENERIC_PRINCESS;
 				} else if(rows[rowCount].charAt(colCount) == '*') 
-					grid[rowCount][colCount] = HAZARD;
-				else grid[rowCount][colCount] = CLEAR_PATH;
+					grid[rowCount-1][colCount] = HAZARD;
+				else grid[rowCount-1][colCount] = CLEAR_PATH;
 			}
 		}
 	}

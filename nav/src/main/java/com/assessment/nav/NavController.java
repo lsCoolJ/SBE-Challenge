@@ -8,48 +8,68 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.management.openmbean.CompositeType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NavController implements CommandLineRunner {
-	private static final int[][] MOVES = { {0,1}, {1,0}, {0,-1}, {-1,0} };
-	private static Logger LOG = LoggerFactory.getLogger(NavController.class);
+	private static final int[][] MOVES = { {0,1}, {-1,0}, {0,-1}, {1,0} };
+	private static final String[] DIRECTIONS = {"RIGHT", "UP", "LEFT", "DOWN"};
+	private static final String LEVELFILE = "lvlsix.txt";
 	
-//	@Override //Run using command line as input
-//	public void run(String... args) throws Exception {
-//		Scanner scanner = new Scanner(System.in);
-//		System.out.println("Enter grid size X by X: ");
-//		int gridSize = scanner.nextInt();
-//		System.out.println("Next, enter the " + gridSize + " lines constructing the grid: ");
-//		List<String> grid = new ArrayList<String>();
-//		for(int i = 0; i <= gridSize; i++) {
-//			String curLine = scanner.nextLine();
-//			if(curLine.length() > gridSize) System.out.println("Error in grid size.");
-//			grid.add(curLine);
-//		}
-//		
-//		scanner.close();
-//		
-//		System.out.println("Scanner closed and got all the strings. Here they are: ");
-//		for(String s : grid) System.out.println(s);
-//	}
+	@Override
+	public void run(String... args) throws Exception {
+		runLevelFile();
+		runLevelStdin();
+	}
 	
-	@Override //Run using txt file as input
-	public void run(String... args) throws FileNotFoundException {
-		File level = new File("src/main/resources/levels/lvlone.txt");
+	/*
+	 * This function takes input from STDIN to run this app.
+	 */
+	public void runLevelStdin() {
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("RUNNING LEVEL VIA STDIN AS INPUT!");
+		System.out.println("Enter grid size X by X: ");
+		int gridSize = scanner.nextInt();
+		System.out.println("Next, enter the " + gridSize + " lines constructing the grid: ");
+		String fileText = String.valueOf(gridSize);
+		for(int i = 0; i <= gridSize; ++i) {
+			String curLine = scanner.nextLine();
+			if(curLine.length() > gridSize) {
+				System.out.println("Error in grid size.");
+				continue;
+			}
+			fileText += curLine + '\n';
+		}
+		scanner.close();
+		
+		navigateGrid(fileText);
+	}
+	
+	/*
+	 * This function takes input from a file to run this app.
+	 */
+	public void runLevelFile() throws FileNotFoundException {
+		System.out.println("RUNNING LEVEL VIA FILE AS INPUT!");
+		File level = new File("src/main/resources/levels/" + LEVELFILE);
 		String fileText = "";
 		try (Scanner input = new Scanner(level)) {
 			while(input.hasNextLine()) {
 				fileText += input.nextLine() + "\n";
 			}
+			input.close();
 		} catch(FileNotFoundException fnfe) {}
 		
-		
+		navigateGrid(fileText);
+	}
+	
+	/*
+	 * This function is the main piece of this app. It takes a string and 
+	 * uses it to generate a Grid object and then navigates through the 
+	 * grid (which is the level) with m as the origin, goes to b, then 
+	 * goes to p and prints the solution.
+	 */
+	private void navigateGrid(String fileText) {
 		Grid grid = new Grid(fileText);
 		
 		LinkedList<Location> next = new LinkedList<Location>();
@@ -66,9 +86,11 @@ public class NavController implements CommandLineRunner {
 				continue;
 			}
 			
-			if(grid.isMario(current)) continue;
-			else if(grid.isBowser(current)) grid.clearVisited();
-			else if(grid.isPeach(current)) {
+			if(grid.isBowser(current)) {
+				grid.clearVisited();
+				grid.setVisited(current, true);
+				next.clear();
+			} else if(grid.isPeach(current)) {
 				if(grid.wasVisited(grid.getB())) {
 					printSolution(current);
 					break;
@@ -77,18 +99,43 @@ public class NavController implements CommandLineRunner {
 			
 			for(int[] move : MOVES) {
 				Location l = new Location(current.getX() + move[0], current.getY() + move[1], current);
+				
 				next.add(l);
-				grid.setVisited(current, true);
 			}
+			grid.setVisited(current, true);
 		}
 	}
 	
-	public void printSolution(Location current) {
+	/*
+	 * This function finds the direction from the prev location to the current 
+	 * location using the private findDirection method. Then it reverses the 
+	 * string list since it's technically backwards and just prints it out.
+	 * @param current is the last location, which should always be the location
+	 *  of p if the level doesn't have any errors.
+	 */
+	private void printSolution(Location current) {
 		Location iter = current;
-		
-		while(iter != null) {
-			
+		List<String> path = new ArrayList<String>();
+		while(iter != null && iter.prev != null) {
+			path.add(findDirection(iter, iter.prev));
 			iter = iter.prev;
 		}
+		
+		Collections.reverse(path);
+		StringBuilder solution = new StringBuilder();
+		for(String s : path) solution.append(s).append(", ");
+		solution.setLength(solution.length()-2);
+		
+		System.out.println("The solution to the given grid is: " + solution.toString());
+	}
+	
+	//DIRECTIONS = {"RIGHT", "UP", "LEFT", "DOWN"}
+	private String findDirection(Location a, Location b) {
+		if(a == null || b == null) return "";
+		if(a.getX() - b.getX() == 0 && a.getY() - b.getY() > 0) return DIRECTIONS[0];
+		else if(a.getX() - b.getX() < 0 && a.getY() - b.getY() == 0) return DIRECTIONS[1];
+		else if(a.getX() - b.getX() == 0 && a.getY() - b.getY() < 0) return DIRECTIONS[2];
+		else if(a.getX() - b.getX() > 0 && a.getY() - b.getY() == 0) return DIRECTIONS[3];
+		else return "UNKOWN";
 	}
 }
